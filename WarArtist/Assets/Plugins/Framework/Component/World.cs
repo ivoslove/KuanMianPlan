@@ -39,8 +39,8 @@ namespace App.Component
         /// <returns>添加的或者已存在的对象</returns>
         public static TComponent CreateComponent<TComponent>(string tag = null) where TComponent : BaseComponent, new()
         {
-            var component = new TComponent(){Tag = tag};
-            _cache.Set(component.Id,component);
+            var component = new TComponent(){ComponentTag = tag};
+            _cache.Set(component.ComponentId,component);
             return component;
         }
 

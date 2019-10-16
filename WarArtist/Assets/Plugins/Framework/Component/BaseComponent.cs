@@ -10,8 +10,8 @@ namespace App.Component
     {
         #region private fields
 
-        private string _tag;              //组件标识
-        private string _id;               //组件ID
+        private string _componentTag;              //组件标识
+        private string _componentId;               //组件ID
 
         #endregion
 
@@ -22,7 +22,7 @@ namespace App.Component
         /// </summary>
         public BaseComponent()
         {
-            _id = Guid.NewGuid().ToString();
+            _componentId = Guid.NewGuid().ToString();
         }
 
         #endregion
@@ -32,15 +32,15 @@ namespace App.Component
         /// <summary>
         /// 获取组件ID
         /// </summary>
-        public string Id => _id;
+        public string ComponentId => _componentId;
 
         /// <summary>
         /// 设置或获取组件标识
         /// </summary>
-        public string Tag
+        public string ComponentTag
         {
-            get => _tag;
-            set => _tag = value;
+            get => _componentTag;
+            set => _componentTag = value;
         }
 
         #endregion
