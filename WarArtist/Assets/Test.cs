@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using App.Component;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ public class Test : MonoBehaviour
         var a = component.FindAllFromKey(p => p.GetType() == typeof(AAA));
         var x = component.FindValues();
         
+ 
 
         //BBB c = new BBB();
         //Debug.Log("C id:"+c.Id);

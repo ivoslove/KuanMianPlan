@@ -38,17 +38,18 @@ namespace App.Editor.Document
             }
 
             //这个方法还能优化...  现在只是艰难的完成了它的任务...
-
             var tuples = Assembly.Load(_loadAssembly).GetTypes().ToList()
                 .FindAll(t => t.GetCustomAttribute<DocumentTableAttribute>() != null).Select(p =>
                     new Tuple<string, Type>(p.GetCustomAttribute<DocumentTableAttribute>().DocumentName, p)).ToList();
+
             foreach (var p in assets.ToList())
             {
-                if (p.GetType().GetCustomAttribute<DocumentTableAttribute>() == null)
+                var documentName = GetDocumentName(p);
+                var tuple = tuples.FirstOrDefault(t => t.Item1.Equals(documentName));
+                if (tuple?.Item2.GetCustomAttribute<DocumentTableAttribute>() == null)
                 {
                     continue;
                 }
-                var documentName = GetDocumentName(p);
                 var file = File.ReadAllText(p);
                 XmlSpreadSheetReader.ReadSheet(file);
                 var sheet = XmlSpreadSheetReader.Output;
@@ -58,9 +59,8 @@ namespace App.Editor.Document
                     continue;
                 }
                 var idCount = sheet["Id"].Length;
-                var tuple = tuples.FirstOrDefault(t => t.Item1.Equals(documentName));
-                var component = Activator.CreateInstance(tuple.Item2);
-                var proxy = component.GetType().GetProperty("Proxy")?.GetValue(component, null);
+               
+                var proxy = ScriptableObject.CreateInstance(tuple.Item2);
                 AssetDatabase.CreateAsset(proxy as UnityEngine.Object, _assetFileFoldelPath + tuple.Item1 + ".asset");
                 var documentItems = proxy.GetType().GetField("DocumentItems");
                 var list = Activator.CreateInstance(documentItems.FieldType);
@@ -86,7 +86,7 @@ namespace App.Editor.Document
                         t.SetValue(item, value);
                     }
 
-                    add?.Invoke(list, new[] {item});
+                    add?.Invoke(list, new[] { item });
                 }
                 documentItems.SetValue(proxy, list);
             }
