@@ -93,7 +93,6 @@ namespace App.Dispatch
 
         #endregion
 
-
         #region public static funcs
 
         #region Listener
@@ -359,7 +358,7 @@ namespace App.Dispatch
         /// 移除工作
         /// </summary>
         /// <param name="workId">工作ID</param>
-        public static void Remove(string workId)
+        public new static void Remove(string workId)
         {
             _cache.RemoveAllFromKey(p => p == workId);
         }

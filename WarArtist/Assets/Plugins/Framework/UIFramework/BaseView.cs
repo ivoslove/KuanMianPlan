@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using UnityEngine.Events;
+using App.Dispatch;
 
 namespace App.UI
 {
@@ -9,18 +9,12 @@ namespace App.UI
     /// </summary>
     public abstract class BaseView
     {
-        #region events
-        public class AsyncOnOpenHandle : UnityEvent<Task<BaseView>> { }
-
-        public AsyncOnOpenHandle AsyncOnOpenEvent { get; } = new AsyncOnOpenHandle();
-
-        public class SyncOnOpenHandle : UnityEvent<BaseView> { }
-
-        public SyncOnOpenHandle SyncOnOpenEvent { get; } = new SyncOnOpenHandle();
-        #endregion
-
-        private void OnAwake()
+        protected BaseView()
         {
+            Dispatcher<BaseView>.Listener("SyncOpenView", SyncOnOpen);
+            Dispatcher<Task<BaseView>>.Listener("AsyncOpenView", AsyncOnOpen);
+            Dispatcher.Listener("CloseView",Close);
+            Dispatcher.Listener("DestroyView", OnDestroy);
         }
 
         /// <summary>
@@ -33,7 +27,6 @@ namespace App.UI
         /// </summary>
         /// <returns></returns>
         protected virtual Task<BaseView> AsyncOnOpen() { return Task.FromResult(this);}
-
 
         /// <summary>
         /// 关闭(仅隐藏)
@@ -48,7 +41,10 @@ namespace App.UI
         /// </summary>
         protected virtual void OnDestroy()
         {
-
+            Dispatcher<BaseView>.Remove("SyncOpenView", SyncOnOpen);
+            Dispatcher<Task<BaseView>>.Remove("AsyncOpenView", AsyncOnOpen);
+            Dispatcher.Remove("CloseView", Close);
+            Dispatcher.Remove("DestroyView", OnDestroy);
         }
     }
 }
