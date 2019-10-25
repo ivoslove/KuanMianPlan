@@ -37,7 +37,7 @@ namespace App.Component
         /// <param name="key">键</param>
         /// <param name="value">值</param>
         /// <param name="isCover">是否覆盖原有数据</param>
-        public void Set(TKey key, TValue value, bool isCover = true)
+        public TValue Set(TKey key, TValue value, bool isCover = true)
         {
             if (_cache.ContainsKey(key))
             {
@@ -45,12 +45,19 @@ namespace App.Component
                 {
                     _cache[key] = value;
                 }
+                else
+                {
+                    return _cache[key];
+                }
             }
             else
             {
                 _cache.Add(key, value);
             }
+            return value;
         }
+
+
 
         /// <summary>
         /// 获取
@@ -59,8 +66,10 @@ namespace App.Component
         /// <returns></returns>
         public TValue Get(TKey key)
         {
-            return _cache[key];
+            _cache.TryGetValue(key, out var value);
+            return value;
         }
+
 
         /// <summary>
         /// 获取所有满足键条件的键
