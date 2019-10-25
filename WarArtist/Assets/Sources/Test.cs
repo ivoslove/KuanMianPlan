@@ -11,7 +11,7 @@ public class Test : MonoBehaviour
     void Start()
     {
         Debug.Log("1S");
-        Dispatcher<int>.Listener<int>("123", AAA);
+       // Dispatcher<int>.Listener<int>("123", AAA);
         Debug.Log("1E");
 
     }

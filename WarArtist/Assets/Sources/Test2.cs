@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using App.Dispatch;
 using UnityEngine;
 
@@ -9,13 +11,15 @@ public class Test2 : MonoBehaviour
     void Start()
     {
         Debug.Log("2S");
-        Dispatcher<int>.Listener<int>("123",BBB);
+        Dispatcher<Task<int>>.Listener<int>("123",BBB);
         Debug.Log("2E");
 
         for (int i = 0; i < 5; i++)
         {
-           var a = Dispatcher<int>.DoWork("123",i);
-           Debug.Log(a);
+            Dispatcher<Task<int>>.DoWork("123",i).ContinueWith(t =>
+            {
+                Debug.Log(t.Result);
+            });
         }
     }
 
@@ -25,9 +29,8 @@ public class Test2 : MonoBehaviour
         
     }
 
-    private int BBB(int a)
+    private Task<int> BBB(int a)
     {
-        Debug.Log($"执行了{a}次BBB");
-        return 999;
+        return Task.Delay(TimeSpan.FromSeconds(10)).ContinueWith(t => 10);
     } 
 }

@@ -98,6 +98,21 @@ namespace App.Dispatch
 
         #region Listener
 
+        /// <summary>
+        /// 监听工作
+        /// </summary>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Listener(string workId, Work work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                _cache.Set(workId, null);
+            }
+            var value = (Work)_cache.Get(workId) + work;
+            _cache.Set(workId, value);
+        }
 
         /// <summary>
         /// 监听工作
@@ -113,6 +128,106 @@ namespace App.Dispatch
                 _cache.Set(workId, null);
             }
             var value = (Work<TArg1>)_cache.Get(workId) + work;
+            _cache.Set(workId, value);
+        }
+
+        /// <summary>
+        /// 监听工作
+        /// </summary>
+        /// <typeparam name="TArg1">参数类型1</typeparam>
+        /// <typeparam name="TArg2">参数类型2</typeparam>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Listener<TArg1, TArg2>(string workId, Work<TArg1, TArg2> work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                _cache.Set(workId, null);
+            }
+            var value = (Work<TArg1, TArg2>)_cache.Get(workId) + work;
+            _cache.Set(workId, value);
+        }
+
+        /// <summary>
+        /// 监听工作
+        /// </summary>
+        /// <typeparam name="TArg1">参数类型1</typeparam>
+        /// <typeparam name="TArg2">参数类型2</typeparam>
+        /// <typeparam name="TArg3">参数类型3</typeparam>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Listener<TArg1, TArg2, TArg3>(string workId, Work<TArg1, TArg2, TArg3> work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                _cache.Set(workId, null);
+            }
+            var value = (Work<TArg1, TArg2, TArg3>)_cache.Get(workId) + work;
+            _cache.Set(workId, value);
+        }
+
+        /// <summary>
+        /// 监听工作
+        /// </summary>
+        /// <typeparam name="TArg1">参数类型1</typeparam>
+        /// <typeparam name="TArg2">参数类型2</typeparam>
+        /// <typeparam name="TArg3">参数类型3</typeparam>
+        /// <typeparam name="TArg4">参数类型4</typeparam>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Listener<TArg1, TArg2, TArg3, TArg4>(string workId, Work<TArg1, TArg2, TArg3, TArg4> work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                _cache.Set(workId, null);
+            }
+            var value = (Work<TArg1, TArg2, TArg3, TArg4>)_cache.Get(workId) + work;
+            _cache.Set(workId, value);
+        }
+
+        /// <summary>
+        /// 监听工作
+        /// </summary>
+        /// <typeparam name="TArg1">参数类型1</typeparam>
+        /// <typeparam name="TArg2">参数类型2</typeparam>
+        /// <typeparam name="TArg3">参数类型3</typeparam>
+        /// <typeparam name="TArg4">参数类型4</typeparam>
+        /// <typeparam name="TArg5">参数类型5</typeparam>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Listener<TArg1, TArg2, TArg3, TArg4, TArg5>(string workId, Work<TArg1, TArg2, TArg3, TArg4, TArg5> work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                _cache.Set(workId, null);
+            }
+            var value = (Work<TArg1, TArg2, TArg3, TArg4, TArg5>)_cache.Get(workId) + work;
+            _cache.Set(workId, value);
+        }
+
+        /// <summary>
+        /// 监听工作
+        /// </summary>
+        /// <typeparam name="TArg1">参数类型1</typeparam>
+        /// <typeparam name="TArg2">参数类型2</typeparam>
+        /// <typeparam name="TArg3">参数类型3</typeparam>
+        /// <typeparam name="TArg4">参数类型4</typeparam>
+        /// <typeparam name="TArg5">参数类型5</typeparam>
+        /// <typeparam name="TArg6">参数类型6</typeparam>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Listener<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(string workId, Work<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                _cache.Set(workId, null);
+            }
+            var value = (Work<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>)_cache.Get(workId) + work;
             _cache.Set(workId, value);
         }
 
@@ -236,16 +351,150 @@ namespace App.Dispatch
             return ((Work<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>) handle).Invoke(arg1, arg2, arg3, arg4, arg5, arg6);
         }
 
+        #endregion
+
+        #region Remove
+
         /// <summary>
-        /// 执行工作
+        /// 移除工作
+        /// </summary>
+        /// <param name="workId">工作ID</param>
+        public static void Remove(string workId)
+        {
+            _cache.RemoveAllFromKey(p => p == workId);
+        }
+
+        /// <summary>
+        /// 移除工作
+        /// </summary>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work"></param>
+        public static void Remove(string workId, Work work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                Remove(workId);
+                return;
+            }
+            _cache.Set(workId, (Work)handle - work);
+        }
+
+        /// <summary>
+        /// 移除工作
         /// </summary>
         /// <typeparam name="TArg1">参数类型1</typeparam>
         /// <param name="workId">工作ID</param>
-        /// <param name="arg1">参数1</param>
-        public new static Task<TResult> AsycnDoWork<TArg1>(string workId, TArg1 arg1)
+        /// <param name="work">工作事务</param>
+        public static void Remove<TArg1>(string workId, Work<TArg1> work)
         {
             var handle = _cache.Get(workId);
-            return Task.FromResult(((Work<TArg1>)handle).Invoke(arg1));
+            if (handle == null)
+            {
+                Remove(workId);
+                return;
+            }
+            _cache.Set(workId, (Work<TArg1>)handle - work);
+        }
+
+        /// <summary>
+        /// 移除工作
+        /// </summary>
+        /// <typeparam name="TArg1">参数类型1</typeparam>
+        /// <typeparam name="TArg2">参数类型2</typeparam>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Remove<TArg1, TArg2>(string workId, Work<TArg1, TArg2> work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                Remove(workId);
+                return;
+            }
+            _cache.Set(workId, (Work<TArg1, TArg2>)handle - work);
+        }
+
+        /// <summary>
+        /// 移除工作
+        /// </summary>
+        /// <typeparam name="TArg1">参数类型1</typeparam>
+        /// <typeparam name="TArg2">参数类型2</typeparam>
+        /// <typeparam name="TArg3">参数类型3</typeparam>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Remove<TArg1, TArg2, TArg3>(string workId, Work<TArg1, TArg2, TArg3> work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                Remove(workId);
+                return;
+            }
+            _cache.Set(workId, (Work<TArg1, TArg2, TArg3>)handle - work);
+        }
+
+        /// <summary>
+        /// 移除工作
+        /// </summary>
+        /// <typeparam name="TArg1">参数类型1</typeparam>
+        /// <typeparam name="TArg2">参数类型2</typeparam>
+        /// <typeparam name="TArg3">参数类型3</typeparam>
+        /// <typeparam name="TArg4">参数类型4</typeparam>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Remove<TArg1, TArg2, TArg3, TArg4>(string workId, Work<TArg1, TArg2, TArg3, TArg4> work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                Remove(workId);
+                return;
+            }
+            _cache.Set(workId, (Work<TArg1, TArg2, TArg3, TArg4>)handle - work);
+        }
+
+        /// <summary>
+        /// 移除工作
+        /// </summary>
+        /// <typeparam name="TArg1">参数类型1</typeparam>
+        /// <typeparam name="TArg2">参数类型2</typeparam>
+        /// <typeparam name="TArg3">参数类型3</typeparam>
+        /// <typeparam name="TArg4">参数类型4</typeparam>
+        /// <typeparam name="TArg5">参数类型5</typeparam>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Remove<TArg1, TArg2, TArg3, TArg4, TArg5>(string workId, Work<TArg1, TArg2, TArg3, TArg4, TArg5> work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                Remove(workId);
+                return;
+            }
+            _cache.Set(workId, (Work<TArg1, TArg2, TArg3, TArg4, TArg5>)handle - work);
+        }
+
+        /// <summary>
+        /// 移除工作
+        /// </summary>
+        /// <typeparam name="TArg1">参数类型1</typeparam>
+        /// <typeparam name="TArg2">参数类型2</typeparam>
+        /// <typeparam name="TArg3">参数类型3</typeparam>
+        /// <typeparam name="TArg4">参数类型4</typeparam>
+        /// <typeparam name="TArg5">参数类型5</typeparam>
+        /// <typeparam name="TArg6">参数类型6</typeparam>
+        /// <param name="workId">工作ID</param>
+        /// <param name="work">工作事务</param>
+        public static void Remove<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(string workId, Work<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6> work)
+        {
+            var handle = _cache.Get(workId);
+            if (handle == null)
+            {
+                Remove(workId);
+                return;
+            }
+            _cache.Set(workId, (Work<TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>)handle - work);
         }
 
         #endregion
