@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,7 +13,7 @@ namespace App.Component
 
         #region private fields
 
-        private static RepositoryComponent<string, BaseComponent> _cache;                          //仓储组件
+        private static RepositoryComponent<string, BaseComponent> _cache;                          //仓储组件[组件ID , 组件对象]
 
         #endregion
 
@@ -48,11 +49,25 @@ namespace App.Component
         /// 获取组件列表
         /// </summary>
         /// <typeparam name="TComponent">要获取的组件类型</typeparam>
-        /// <returns></returns>
-        public static List<TComponent> GetComponent<TComponent>() where TComponent : BaseComponent
+        /// <returns>组件列表</returns>
+        public static List<TComponent> GetComponents<TComponent>() where TComponent : BaseComponent
         {
-            var component = _cache.FindValuesFromValue(p => p.GetType() == typeof(TComponent));
-            return component.Select(p => p as TComponent).ToList();
+            var components = _cache.FindValuesFromValue(p => p.GetType() == typeof(TComponent));
+            return components.Select(p => p as TComponent).ToList();
+        }
+
+        /// <summary>
+        /// 获取组件列表
+        /// </summary>
+        /// <param name="type">要获取的组件类型</param>
+        /// <returns>组件列表</returns>
+        public static List<BaseComponent> GetComponents(Type type)
+        {
+            if (type.BaseType != typeof(BaseComponent))
+            {
+                return new List<BaseComponent>();
+            }
+            return _cache.FindValuesFromValue(p => p.GetType() == type).ToList();
         }
 
         #endregion

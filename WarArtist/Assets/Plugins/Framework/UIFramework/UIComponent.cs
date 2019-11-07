@@ -1,6 +1,8 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using App.Dispatch;
 using App.UI;
@@ -134,6 +136,66 @@ namespace App.Component
             }
         }
 
+
+        /// <summary>
+        /// UI控件反射赋值
+        /// </summary>
+        /// <typeparam name="TView">窗口类型</typeparam>
+        /// <param name="from">哪个游戏物体作为赋值对象</param>
+        /// <param name="view">要被赋值的窗口对象</param>
+        public void ReflectFromTransform<TView>(Transform from, ref TView view) where TView : BaseView, new()
+        {
+            var viewType = view.GetType();
+            var viewProperties = viewType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var viewFields = viewType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+            viewFields.FirstOrDefault(t => t.Name == "_viewRoot")?.SetValue(view, from);
+            var transforms = from.GetComponentsInChildren<Transform>(true);
+
+            foreach (var tempTransform in transforms)
+            {
+                foreach (var tempField in viewFields)
+                {
+                    if (tempField.Name.Replace("_", string.Empty).ToUpper() == tempTransform.name.ToUpper())
+                    {
+                        tempField.SetValue(view, tempTransform.GetComponent(tempField.FieldType));
+                        break;
+                    }
+                }
+
+                foreach (var tempProperty in viewProperties)
+                {
+                    if (tempProperty.Name.ToUpper() == tempTransform.name.ToUpper())
+                    {
+                        tempProperty.SetValue(view, tempTransform.GetComponent(tempProperty.PropertyType));
+                        break;
+                    }
+                }
+            }
+
+            foreach (var tempField in viewFields)
+            {
+                var inject = tempField.GetCustomAttribute<InjectAttribute>();
+                if (inject == null)
+                {
+                    continue;
+                }
+                tempField.SetValue(view, World.GetComponents(tempField.FieldType).FirstOrDefault(p => p.ComponentTag == inject.ComponentTag));
+            }
+
+            foreach (var tempProperty in viewProperties)
+            {
+                var inject = tempProperty.GetCustomAttribute<InjectAttribute>();
+                if (inject == null)
+                {
+                    continue;
+                }
+                tempProperty.SetValue(view, World.GetComponents(tempProperty.PropertyType).FirstOrDefault(p => p.ComponentTag == inject.ComponentTag));
+            }
+
+            
+        }
+
+
         #endregion
 
         #region private funcs
@@ -147,13 +209,16 @@ namespace App.Component
         {
             var viewCache = Resources.Load($"Views/{typeof(TView).Name}");
             var viewGameObject = GameObject.Instantiate(viewCache, Canvas) as GameObject;
-            if (viewGameObject != null)
+            if (viewGameObject == null)
             {
-                var rectTransform = viewGameObject.GetComponent<RectTransform>();
-                rectTransform.anchoredPosition3D = Vector3.zero;
-                rectTransform.localScale = Vector3.one;
+                return null;
             }
-            return new Tuple<TView, Transform>(new TView(),viewGameObject?.transform);
+            var rectTransform = viewGameObject.GetComponent<RectTransform>();
+            rectTransform.anchoredPosition3D = Vector3.zero;
+            rectTransform.localScale = Vector3.one;
+            var view = new TView();
+            ReflectFromTransform(viewGameObject.transform,ref view);
+            return new Tuple<TView, Transform>(view,viewGameObject?.transform);
         }
 
         #endregion

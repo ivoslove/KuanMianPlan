@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using App.Dispatch;
-using App.Document.Attribute;
+using App.Document;
 using UnityEngine;
 
 namespace App.Component

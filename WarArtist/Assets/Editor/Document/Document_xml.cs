@@ -3,8 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using App.Component;
-using App.Document.Attribute;
+using App.Document;
 using UnityEditor;
 using UnityEngine;
 

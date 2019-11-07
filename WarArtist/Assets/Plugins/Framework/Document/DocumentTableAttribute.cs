@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace App.Document.Attribute
+namespace App.Document
 {
     /// <summary>
     /// 文档表标签,标识该文档需要生产.Asset文件

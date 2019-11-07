@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using App.Dispatch;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace App.UI
@@ -14,6 +15,7 @@ namespace App.UI
         #region private fields
 
         private string _typeName;                   //View名称
+        protected Transform _viewRoot;              //窗口根节点
 
         #endregion
 

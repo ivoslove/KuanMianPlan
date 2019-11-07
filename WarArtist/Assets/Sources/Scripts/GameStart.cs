@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Game
 {
+    /// <summary>
+    /// 游戏启动器
+    /// </summary>
     public class GameStart : MonoBehaviour
     {
         private void Start()
