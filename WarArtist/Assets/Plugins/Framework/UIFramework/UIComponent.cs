@@ -1,4 +1,6 @@
 ﻿
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using App.Dispatch;
 using App.UI;
@@ -12,24 +14,33 @@ namespace App.Component
     /// </summary>
     public sealed class UIComponent : BaseComponent
     {
-        private RepositoryComponent<string, BaseView> _cache;
+
+        #region private fields
+
+        private RepositoryComponent<BaseView, Transform> _cache;     //缓存[窗口对象，窗口游戏物体]
+
+        #endregion
+
+        #region public properties
 
         /// <summary>
         /// 画布
         /// </summary>
         public Transform Canvas { get; }
+
+        #endregion
+
         #region ctor
 
         public UIComponent()
         {
-            _cache = new RepositoryComponent<string, BaseView>();
+            _cache = new RepositoryComponent<BaseView, Transform>();
             Canvas = GameObject.Find("Canvas").transform;
         }
 
         #endregion
 
         #region public funcs
-
 
         /// <summary>
         /// 开启窗口(同步)
@@ -38,8 +49,29 @@ namespace App.Component
         /// <returns>窗口对象</returns>
         public TView SyncOpenView<TView>() where TView :BaseView,new()
         {
-            InitView<TView>();
-            return Dispatcher<BaseView>.DoWork("SyncOpenView") as TView;
+            try
+            {
+                var viewName = typeof(TView).Name;
+                var view = _cache.FirstAllFromKey(p => p.GetType() == typeof(TView));
+                if (view.Item1 == null)
+                {
+                    var initView = InitView<TView>();
+                    view = new Tuple<BaseView, Transform>(initView.Item1, initView.Item2);
+                    _cache.Set(view.Item1, view.Item2);
+                    Dispatcher.DoWork($"OnInitView_{viewName}");  //执行初始化 
+                }
+                else
+                {
+                    view.Item2.gameObject.SetActive(true);
+                }
+                Dispatcher.DoWork($"SyncOpenView_{viewName}"); //执行窗口开启
+                return view.Item1 as TView;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"同步开启窗口{typeof(TView)}失败,原因:{e}");
+            }
+            return null;
         }
 
         /// <summary>
@@ -47,12 +79,60 @@ namespace App.Component
         /// </summary>
         /// <typeparam name="TView">窗口类型</typeparam>
         /// <returns>包含窗口对象的任务</returns>
-        public Task<TView> AsyncOpenView<TView>() where TView : BaseView, new ()
+        public Task<TView> AsyncOpenView<TView>() where TView : BaseView, new()
         {
-            InitView<TView>();
-            return Dispatcher<Task<BaseView>>.DoWork("AsyncOpenView") as Task<TView>;
+            var viewName = typeof(TView).Name;
+            var view = _cache.FirstAllFromKey(p => p.GetType() == typeof(TView));
+
+            if (view.Item1 == null)
+            {
+                var initView = InitView<TView>();
+                view = new Tuple<BaseView, Transform>(initView.Item1, initView.Item2);
+                _cache.Set(view.Item1, view.Item2);
+                Dispatcher.DoWork($"OnInitView_{viewName}"); //执行初始化 
+            }
+
+            return Dispatcher<Task>.DoWork($"AsyncOpenView_{viewName}").ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    Debug.LogError($"异步开启窗口{viewName}异常,原因:{t.Exception}");
+                }
+                view.Item2?.gameObject.SetActive(true);
+                return view.Item1 as TView;
+            });
         }
 
+        /// <summary>
+        /// 关闭窗口(仅隐藏)
+        /// </summary>
+        /// <typeparam name="TView">窗口类型</typeparam>
+        public void CloseView<TView>() where TView : BaseView, new ()
+        {
+            var viewName = typeof(TView).Name;
+            var view = _cache.FirstValueFromKey((p => p.GetType() == typeof(TView)));
+            if (view!=null)
+            {
+                Dispatcher.DoWork($"CloseView_{viewName}"); //执行窗口关闭
+                view.gameObject.SetActive(false);
+            }
+        }
+
+        /// <summary>
+        /// 销毁窗口
+        /// </summary>
+        /// <typeparam name="TView">窗口类型</typeparam>
+        public void DestroyView<TView>() where TView : BaseView, new()
+        {
+            var viewName = typeof(TView).Name;
+            var view = _cache.FirstAllFromKey((p => p.GetType() == typeof(TView)));
+            if (view != null)
+            {
+                Dispatcher.DoWork($"DestroyView_{viewName}"); //执行窗口关闭
+                GameObject.DestroyImmediate(view.Item2.gameObject);
+                _cache.Remove(view.Item1);
+            }
+        }
 
         #endregion
 
@@ -62,8 +142,8 @@ namespace App.Component
         /// 创建窗口与实例化窗口对象
         /// </summary>
         /// <typeparam name="TView">窗口类型</typeparam>
-        /// <returns>窗口对象</returns>
-        private TView InitView<TView>() where TView : BaseView, new()
+        /// <returns>[窗口对象,窗口游戏物体]</returns>
+        private Tuple<TView,Transform> InitView<TView>() where TView : BaseView, new()
         {
             var viewCache = Resources.Load($"Views/{typeof(TView).Name}");
             var viewGameObject = GameObject.Instantiate(viewCache, Canvas) as GameObject;
@@ -73,7 +153,7 @@ namespace App.Component
                 rectTransform.anchoredPosition3D = Vector3.zero;
                 rectTransform.localScale = Vector3.one;
             }
-            return new TView();
+            return new Tuple<TView, Transform>(new TView(),viewGameObject?.transform);
         }
 
         #endregion

@@ -11,13 +11,22 @@ namespace App.UI
     public abstract class BaseView
     {
 
+        #region private fields
+
+        private string _typeName;                   //View名称
+
+        #endregion
+
         #region ctor
 
         protected BaseView()
         {
-            Dispatcher<BaseView>.Listener("InitView",OnInit);
-            Dispatcher<BaseView>.Listener("SyncOpenView",SyncOnOpen);
-            Dispatcher<Task<BaseView>>.Listener("AsyncOpenView",AsyncOnOpen);
+            _typeName = GetType().Name;
+            Dispatcher.Listener($"OnInitView_{_typeName}", OnAwake);
+            Dispatcher.Listener($"SyncOpenView_{_typeName}", SyncOnOpen);
+            Dispatcher.Listener($"CloseView_{_typeName}", Close);
+            Dispatcher.Listener($"DestroyView_{_typeName}", OnDestroy);
+            Dispatcher<Task>.Listener($"AsyncOpenView_{_typeName}", AsyncOnOpen);
         }
 
         #endregion
@@ -26,18 +35,24 @@ namespace App.UI
         /// 初始化窗口(仅当窗口建立时执行,且最先执行)
         /// </summary>
         /// <returns></returns>
-        protected virtual BaseView OnInit(){ return this; }
+        protected virtual void OnAwake()
+        {
+
+        }
 
         /// <summary>
         /// 同步开启(窗口每次显示都会执行)
         /// </summary>
-        protected virtual BaseView SyncOnOpen(){ return this; }
+        protected virtual void SyncOnOpen()
+        {
+
+        }
 
         /// <summary>
         /// 异步开启(窗口每次开启都会执行)
         /// </summary>
         /// <returns></returns>
-        protected virtual Task<BaseView> AsyncOnOpen() { return Task.FromResult(this);}
+        protected virtual Task AsyncOnOpen() => Task.FromResult(0);
 
 
         /// <summary>
@@ -45,7 +60,7 @@ namespace App.UI
         /// </summary>
         protected virtual void Close()
         {
-            Dispatcher<BaseView>.Remove("InitView", OnInit);
+            Dispatcher.Remove($"OnInitView_{_typeName}", OnAwake);
         }
 
         /// <summary>
@@ -53,8 +68,8 @@ namespace App.UI
         /// </summary>
         protected virtual void OnDestroy()
         {
-            Dispatcher<BaseView>.Remove("SyncOpenView", SyncOnOpen);
-            Dispatcher<Task<BaseView>>.Remove("AsyncOpenView", AsyncOnOpen);
+            Dispatcher.Remove($"SyncOpenView_{_typeName}", SyncOnOpen);
+            Dispatcher<Task>.Remove($"AsyncOpenView_{_typeName}", AsyncOnOpen);
         }
     }
 }

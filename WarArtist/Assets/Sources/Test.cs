@@ -1,6 +1,8 @@
 ﻿
 using System;
+using App.Component;
 using App.Dispatch;
+using App.UI;
 using UnityEngine;
 
 
@@ -10,10 +12,9 @@ public class Test : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("1S");
-       // Dispatcher<int>.Listener<int>("123", AAA);
-        Debug.Log("1E");
-
+       UIComponent ui = new UIComponent();
+       ui.SyncOpenView<StartView>();
+    
     }
 
 

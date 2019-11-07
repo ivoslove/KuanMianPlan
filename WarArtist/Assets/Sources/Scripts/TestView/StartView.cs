@@ -1,20 +1,20 @@
 ﻿
-using System.Threading.Tasks;
-using App.Plugins;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace App.UI
 {
-    public class TestView : BaseView
+    public class StartView : BaseView
     {  
         private Button _startGameBtn;
 
 
-        protected override Task<BaseView> AsyncOnOpen()
+        protected override void OnAwake()
         {
-            return base.AsyncOnOpen();
+            Debug.Log("Start Awake");
         }
+
+
     }
 
     

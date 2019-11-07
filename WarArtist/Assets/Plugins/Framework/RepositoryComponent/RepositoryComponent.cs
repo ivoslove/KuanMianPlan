@@ -57,8 +57,6 @@ namespace App.Component
             return value;
         }
 
-
-
         /// <summary>
         /// 获取
         /// </summary>
@@ -68,6 +66,28 @@ namespace App.Component
         {
             _cache.TryGetValue(key, out var value);
             return value;
+        }
+
+        /// <summary>
+        /// 移除
+        /// </summary>
+        /// <param name="key">键</param>
+        public void Remove(TKey key)
+        {
+            if (_cache.ContainsKey(key))
+            {
+                _cache.Remove(key);
+            }
+        }
+
+        /// <summary>
+        /// 获取是否包含满足条件的键
+        /// </summary>
+        /// <param name="match">键条件</param>
+        /// <returns>存在</returns>
+        public bool IsContainsKey(Func<TKey,bool> match)
+        {
+            return FirstKeyFromKey(match) != null;
         }
 
 
@@ -82,6 +102,16 @@ namespace App.Component
         }
 
         /// <summary>
+        /// 获取首个满足键条件的键
+        /// </summary>
+        /// <param name="match">键条件</param>
+        /// <returns>满足条件的键</returns>
+        public TKey FirstKeyFromKey(Func<TKey, bool> match)
+        {
+            return FindKeys().FirstOrDefault(match);
+        }
+
+        /// <summary>
         /// 获取所有满足键条件的键
         /// </summary>
         /// <param name="match">值条件</param>
@@ -89,6 +119,15 @@ namespace App.Component
         public List<TKey> FindKeysFromValue(Func<TValue,bool> match)
         {
             return FindAllFromValue(match).Select(p => p.Item1).ToList();
+        }
+        /// <summary>
+        /// 获取首个满足键条件的键
+        /// </summary>
+        /// <param name="match">值条件</param>
+        /// <returns>满足条件的键</returns>
+        public TKey FirstKeyFromValue(Func<TValue, bool> match)
+        {
+            return FirstAllFromValue(match).Item1;
         }
 
         /// <summary>
@@ -111,6 +150,16 @@ namespace App.Component
         }
 
         /// <summary>
+        /// 获取所有满足键条件的值
+        /// </summary>
+        /// <param name="match">键条件</param>
+        /// <returns>Value集合</returns>
+        public TValue FirstValueFromKey(Func<TKey, bool> match)
+        {
+            return FirstAllFromKey(match).Item2;
+        }
+
+        /// <summary>
         /// 获取所有满足值条件的值
         /// </summary>
         /// <param name="match">值条件</param>
@@ -118,6 +167,16 @@ namespace App.Component
         public List<TValue> FindValuesFromValue(Func<TValue, bool> match)
         {
            return FindValues().FindAll(p => match(p));
+        }
+
+        /// <summary>
+        /// 获取首个满足值条件的值
+        /// </summary>
+        /// <param name="match">值条件</param>
+        /// <returns></returns>
+        public TValue FirstValueFromValue(Func<TValue, bool> match)
+        {
+            return FindValues().FirstOrDefault(match);
         }
 
         /// <summary>
@@ -150,6 +209,17 @@ namespace App.Component
         }
 
         /// <summary>
+        /// 获取首个满足键条件的键值对列表
+        /// </summary>
+        /// <param name="match">键条件</param>
+        /// <returns>键值对列表</returns>
+        public Tuple<TKey, TValue> FirstAllFromKey(Func<TKey, bool> match)
+        {
+            var pair = _cache.ToList().FirstOrDefault(p => match(p.Key));
+            return new Tuple<TKey, TValue>(pair.Key,pair.Value);
+        }
+
+        /// <summary>
         /// 获取所有满足值条件的键值对列表
         /// </summary>
         /// <param name="match">值条件</param>
@@ -158,6 +228,17 @@ namespace App.Component
         {
             return _cache.ToList().FindAll(p => match(p.Value)).Select(t => new Tuple<TKey, TValue>(t.Key, t.Value))
                 .ToList();
+        }
+
+        /// <summary>
+        /// 获取首个满足值条件的键值对列表
+        /// </summary>
+        /// <param name="match">值条件</param>
+        /// <returns>键值对列表</returns>
+        public Tuple<TKey, TValue> FirstAllFromValue(Func<TValue, bool> match)
+        {
+            var pair = _cache.ToList().FirstOrDefault(p => match(p.Value));
+            return new Tuple<TKey, TValue>(pair.Key,pair.Value);
         }
 
         /// <summary>
