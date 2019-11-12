@@ -25,6 +25,7 @@ namespace App.UI
         {
             _typeName = GetType().Name;
             Dispatcher.Listener($"OnInitView_{_typeName}", OnAwake);
+            Dispatcher.Listener($"AddDelegates_{_typeName}", AddDelegates);
             Dispatcher.Listener($"SyncOpenView_{_typeName}", SyncOnOpen);
             Dispatcher.Listener($"CloseView_{_typeName}", Close);
             Dispatcher.Listener($"DestroyView_{_typeName}", OnDestroy);
@@ -38,6 +39,14 @@ namespace App.UI
         /// </summary>
         /// <returns></returns>
         protected virtual void OnAwake()
+        {
+
+        }
+
+        /// <summary>
+        /// 添加监听
+        /// </summary>
+        protected virtual void AddDelegates()
         {
 
         }

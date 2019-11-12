@@ -12,7 +12,9 @@ namespace Game
         private void Start()
         {
            var uiComponent = World.CreateComponent<UIComponent>();
-           uiComponent.SyncOpenView<StartView>();
+           uiComponent.SyncOpenView<LoginView>();
+
+           var netComponent = World.CreateComponent<NetComponent>();
         }
     }
 }

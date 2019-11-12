@@ -8,6 +8,7 @@ using App.Dispatch;
 using App.UI;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace App.Component
 {
@@ -61,6 +62,7 @@ namespace App.Component
                     view = new Tuple<BaseView, Transform>(initView.Item1, initView.Item2);
                     _cache.Set(view.Item1, view.Item2);
                     Dispatcher.DoWork($"OnInitView_{viewName}");  //执行初始化 
+                    Dispatcher.DoWork($"AddDelegates_{viewName}"); //执行监听任务
                 }
                 else
                 {
@@ -92,6 +94,7 @@ namespace App.Component
                 view = new Tuple<BaseView, Transform>(initView.Item1, initView.Item2);
                 _cache.Set(view.Item1, view.Item2);
                 Dispatcher.DoWork($"OnInitView_{viewName}"); //执行初始化 
+                Dispatcher.DoWork($"AddDelegates_{viewName}"); //执行监听任务
             }
 
             return Dispatcher<Task>.DoWork($"AsyncOpenView_{viewName}").ContinueWith(t =>
@@ -195,6 +198,16 @@ namespace App.Component
             
         }
 
+        /// <summary>
+        /// 添加一个带有被点击的按钮的监听
+        /// </summary>
+        /// <param name="btn">被点击的按钮</param>
+        /// <param name="call">要执行的方法</param>
+        public void AddListener(Button btn, Action<Button> call)
+        {
+            btn.onClick.RemoveAllListeners();
+            btn.onClick.AddListener(() => call(btn));
+        }
 
         #endregion
 
@@ -218,7 +231,7 @@ namespace App.Component
             rectTransform.localScale = Vector3.one;
             var view = new TView();
             ReflectFromTransform(viewGameObject.transform,ref view);
-            return new Tuple<TView, Transform>(view,viewGameObject?.transform);
+            return new Tuple<TView, Transform>(view,viewGameObject.transform);
         }
 
         #endregion
