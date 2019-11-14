@@ -2,10 +2,12 @@
 using System;
 using System.Threading.Tasks;
 using App.Component;
+using App.LeanCloud;
 using LeanCloud;
 using UnityEngine;
 using UnityEngine.TaskExtension;
 using UnityEngine.UI;
+using Random = System.Random;
 
 namespace App.UI
 {
@@ -44,6 +46,9 @@ namespace App.UI
 
         [Inject]
         private UIComponent _uiComponent;             //UI组件
+
+        [Inject]
+        private NetComponent _netComponent;           //网络组件
 
         private readonly string _isRememberPassword = "IsRememberPassword";          //是否记住密码,1：记住   0：不记住
         private readonly string _theLastLoginUser = "TheLastLoginUser";              //最后一次登录的用户的用户名
@@ -87,7 +92,7 @@ namespace App.UI
             if (_rememberPasswordToggle.isOn)
             {
                 _accountInput.text = PlayerPrefs.GetString(_theLastLoginUser);
-                AVUser.Query.WhereEqualTo("username", _accountInput.text).FirstOrDefaultAsync().ContinueToForeground(t =>
+                AVUser.Query.WhereEqualTo(_netComponent.GetProperty<AVUser>(t=>t.Username), _accountInput.text).FirstOrDefaultAsync().ContinueToForeground(t =>
                 {
                     _passwordInput.text = t.Result["showPassword"].ToString();
                     OnLoginBtnClick();
@@ -111,13 +116,17 @@ namespace App.UI
             }
 
             //是否存在该用户
-            AVUser.Query.WhereEqualTo("username", _accountInput.text).CountAsync().ContinueWith(t =>
+            AVUser.Query.WhereEqualTo(_netComponent.GetProperty<AVUser>(t => t.Username), _accountInput.text).CountAsync().ContinueWith(t =>
             {
                 if (t.Result == 0)
                 {
                     return;
                 }
-                Login(_accountInput.text, _passwordInput.text);
+                Login(_accountInput.text, _passwordInput.text).ContinueToForeground(a =>
+                    {
+                        _uiComponent.SyncOpenView<MainView>();
+                        _uiComponent.DestroyView<LoginView>();
+                    });
             });
         }
 
@@ -148,32 +157,51 @@ namespace App.UI
         /// </summary>
         private void OnRegisterConfirmBtnClick()
         {
+
             if (string.IsNullOrEmpty(_accountInput.text) || string.IsNullOrEmpty(_passwordInput.text))
             {
                 _registerErrorText.text = "账号或密码不能为空!";
                 return;
             }
+
             //是否存在该用户
-            AVUser.Query.WhereEqualTo("username", _accountInput.text).CountAsync().ContinueWith(t =>
-            {
-                if (t.Result != 0)
+            AVUser.Query.WhereEqualTo(_netComponent.GetProperty<AVUser>(t => t.Username), _accountInput.text)
+                .CountAsync().ContinueWith(t =>
                 {
-                    _registerErrorText.text = "该账号已注册!";
-                    return;
-                }
-                //不存在该用户，可以注册
-                var user = new AVUser()
-                {
-                    Username = _accountInput.text,
-                    Password = _passwordInput.text,
-                    [_showPasswordKey] = _passwordInput.text
-                };
-                user.SignUpAsync().ContinueWith(p =>
-                {
-                    Debug.Log("........"+user.ObjectId);
-                    Login(_accountInput.text, _passwordInput.text);
+                    if (t.Result != 0)
+                    {
+                        _registerErrorText.text = "该账号已注册!";
+                        return;
+                    }
+
+                    //不存在该用户，可以注册
+                    var user = new AVUser()
+                    {
+                        Username = _accountInput.text,
+                        Password = _passwordInput.text,
+                        [_showPasswordKey] = _passwordInput.text
+                    };
+                    user.SignUpAsync().ContinueToForeground(p =>
+                    {
+
+                        string petName = new RandomComponent().RandomChinese(UnityEngine.Random.Range(2, 5));
+                        var player = new Player
+                        {
+                            PetName = petName,
+                            UserId = AVUser.CurrentUser
+                        };
+
+                        player.SaveAsync().ContinueWith(n =>
+                            {
+                                Login(_accountInput.text, _passwordInput.text).ContinueToForeground(a =>
+                                {
+                                    _uiComponent.SyncOpenView<MainView>();
+                                    _uiComponent.DestroyView<LoginView>();
+                                });
+                            }
+                        );
+                    });
                 });
-            });
 
         }
 
@@ -206,6 +234,7 @@ namespace App.UI
                 return UnityTask.FromResult(0);
             }).AsBackground();
         }
+       
 
         #endregion
     }

@@ -2,6 +2,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using App.Component;
 using App.Dispatch;
@@ -9,6 +11,7 @@ using App.UI;
 using SqlCipher4Unity3D;
 using SQLite.Attribute;
 using UnityEngine;
+using Random = System.Random;
 
 
 public class Test : MonoBehaviour
@@ -34,6 +37,16 @@ public class Test : MonoBehaviour
         //    },
         //});
         //new SqlCipherComponent();
+
+        RandomComponent aa = new RandomComponent();
+
+        aa.RandomChinese(20, 1,6).ContinueWith(t =>
+        {
+            foreach (var temp in t.Result)
+            {
+                Debug.Log(temp);
+            }
+        });
     }
 
     public class AAAAA
@@ -57,6 +70,7 @@ public class Test : MonoBehaviour
         Debug.Log($"执行了{a}次AAA");
         return 888;
     }
+
 
 
 }
