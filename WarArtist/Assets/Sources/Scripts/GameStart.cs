@@ -11,10 +11,11 @@ namespace Game
     {
         private void Start()
         {
-           var uiComponent = World.CreateComponent<UIComponent>();
-           uiComponent.SyncOpenView<LoginView>();
+            var netComponent = World.CreateComponent<NetComponent>();
+            var uiComponent = World.CreateComponent<UIComponent>();
+            uiComponent.SyncOpenView<LoginView>();
 
-           var netComponent = World.CreateComponent<NetComponent>();
+          
         }
     }
 }

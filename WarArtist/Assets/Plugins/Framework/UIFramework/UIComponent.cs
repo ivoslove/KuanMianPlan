@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using App.Dispatch;
@@ -148,6 +149,8 @@ namespace App.Component
         /// <param name="view">要被赋值的窗口对象</param>
         public void ReflectFromTransform<TView>(Transform from, ref TView view) where TView : BaseView, new()
         {
+            //该方法目前采用的是反射的方式，以后可写成表达式树,用以提升效率
+
             var viewType = view.GetType();
             var viewProperties = viewType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var viewFields = viewType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
@@ -194,9 +197,8 @@ namespace App.Component
                 }
                 tempProperty.SetValue(view, World.GetComponents(tempProperty.PropertyType).FirstOrDefault(p => p.ComponentTag == inject.ComponentTag));
             }
-
-            
         }
+
 
         /// <summary>
         /// 添加一个带有被点击的按钮的监听
@@ -233,6 +235,7 @@ namespace App.Component
             ReflectFromTransform(viewGameObject.transform,ref view);
             return new Tuple<TView, Transform>(view,viewGameObject.transform);
         }
+
 
         #endregion
     }

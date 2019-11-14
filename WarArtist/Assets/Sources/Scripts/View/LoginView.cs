@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using App.Component;
 using LeanCloud;
 using UnityEngine;
+using UnityEngine.TaskExtension;
 using UnityEngine.UI;
 
 namespace App.UI
@@ -44,7 +45,9 @@ namespace App.UI
         [Inject]
         private UIComponent _uiComponent;             //UI组件
 
-        private readonly string IsRememberPassword = "IsRememberPassword";          //是否记住密码,1：记住   0：不记住
+        private readonly string _isRememberPassword = "IsRememberPassword";          //是否记住密码,1：记住   0：不记住
+        private readonly string _theLastLoginUser = "TheLastLoginUser";              //最后一次登录的用户的用户名
+        private readonly string _showPasswordKey = "showPassword";             //AVUser表中自己新增的密码字段
 
         #endregion
 
@@ -61,7 +64,7 @@ namespace App.UI
             _loginErrorText.text = "";
             _registerErrorText.text = "";
             _registerEmpty.gameObject.SetActive(false);
-            _rememberPasswordToggle.SetIsOnWithoutNotify(PlayerPrefs.GetInt(IsRememberPassword) == 1);
+            _rememberPasswordToggle.SetIsOnWithoutNotify(PlayerPrefs.GetInt(_isRememberPassword) == 1);
         }
 
         /// <summary>
@@ -83,8 +86,12 @@ namespace App.UI
         {
             if (_rememberPasswordToggle.isOn)
             {
-                //TODO
-                return;    
+                _accountInput.text = PlayerPrefs.GetString(_theLastLoginUser);
+                AVUser.Query.WhereEqualTo("username", _accountInput.text).FirstOrDefaultAsync().ContinueToForeground(t =>
+                {
+                    _passwordInput.text = t.Result["showPassword"].ToString();
+                    OnLoginBtnClick();
+                });
             }
         }
 
@@ -154,13 +161,18 @@ namespace App.UI
                     _registerErrorText.text = "该账号已注册!";
                     return;
                 }
-                //存在该用户，进行登录
+                //不存在该用户，可以注册
                 var user = new AVUser()
                 {
                     Username = _accountInput.text,
-                    Password = _passwordInput.text
+                    Password = _passwordInput.text,
+                    [_showPasswordKey] = _passwordInput.text
                 };
-                user.SignUpAsync().ContinueWith(p => { Login(_accountInput.text, _passwordInput.text); });
+                user.SignUpAsync().ContinueWith(p =>
+                {
+                    Debug.Log("........"+user.ObjectId);
+                    Login(_accountInput.text, _passwordInput.text);
+                });
             });
 
         }
@@ -180,16 +192,19 @@ namespace App.UI
             }
 
             //存在该用户，进行登录
-            return AVUser.LogInAsync(_accountInput.text, _passwordInput.text).ContinueWith(p =>
+            return AVUser.LogInAsync(_accountInput.text, _passwordInput.text).ContinueToForeground(p =>
             {
                 if (p.IsFaulted)
                 {
                     //TODO
-                    return Task.FromException(p.Exception);
+                    return UnityTask.FromException(p.Exception);
                 }
+
+                PlayerPrefs.SetString(_theLastLoginUser, _accountInput.text);
+                PlayerPrefs.SetInt(_isRememberPassword, _rememberPasswordToggle.isOn ? 1 : 0);
                 Debug.Log("登录成功!");
-                return Task.FromResult(0);
-            });
+                return UnityTask.FromResult(0);
+            }).AsBackground();
         }
 
         #endregion
