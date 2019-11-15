@@ -46,6 +46,28 @@ namespace App.UI
                     t => { _userIdText.text = t.Result.PetName; });
         }
 
+        /// <summary>
+        /// 添加监听
+        /// </summary>
+        protected override void AddDelegates()
+        {
+            _leisureBtn.onClick.AddListener(OnLeisureBtnClick);
+        }
+
+        #endregion
+
+
+        #region private funcs
+
+        /// <summary>
+        /// 点击休闲模式按钮
+        /// </summary>
+        private void OnLeisureBtnClick()
+        {
+            _uiComponent.CloseView<MainView>();
+            _uiComponent.SyncOpenView<LeisurePattenView>();
+        }
+
         #endregion
     }
 }
