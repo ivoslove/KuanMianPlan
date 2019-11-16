@@ -100,6 +100,18 @@ namespace App.UI
             }
         }
 
+        /// <summary>
+        /// 销毁(删除)
+        /// </summary>
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            _loginBtn.onClick.RemoveListener(OnLoginBtnClick);
+            _registerBtn.onClick.RemoveListener(OnRegisterBtnClick);
+            _registerBackBtn.onClick.RemoveListener(OnRegisterBackBtnClick);
+            _registerConfirmBtn.onClick.RemoveListener(OnRegisterConfirmBtnClick);
+        }
+
         #endregion
 
         #region private funcs

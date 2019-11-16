@@ -211,6 +211,17 @@ namespace App.Component
             btn.onClick.AddListener(() => call(btn));
         }
 
+        /// <summary>
+        /// 添加一个带有触发改变的Toggle的监听
+        /// </summary>
+        /// <param name="toggle">触发了改变的Toggle</param>
+        /// <param name="call">要执行的方法</param>
+        public void AddListener(Toggle toggle,Action<Toggle,bool> call)
+        {
+            toggle.onValueChanged.RemoveAllListeners();
+            toggle.onValueChanged.AddListener(t=>call(toggle,t));
+        }
+
         #endregion
 
         #region private funcs

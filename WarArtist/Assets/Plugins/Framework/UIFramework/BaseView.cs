@@ -79,6 +79,7 @@ namespace App.UI
         /// </summary>
         protected virtual void OnDestroy()
         {
+            Close();
             Dispatcher.Remove($"SyncOpenView_{_typeName}", SyncOnOpen);
             Dispatcher<Task>.Remove($"AsyncOpenView_{_typeName}", AsyncOnOpen);
         }

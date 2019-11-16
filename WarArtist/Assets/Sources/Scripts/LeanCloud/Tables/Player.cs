@@ -18,7 +18,7 @@ namespace App.LeanCloud
 
 
         /// <summary>
-        /// 玩家昵称
+        /// User表唯一ID
         /// </summary>
         [AVFieldName("userId")]
         public AVObject UserId

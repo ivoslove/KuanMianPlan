@@ -1,4 +1,5 @@
-﻿using App.Component;
+﻿using System.Linq;
+using App.Component;
 using App.LeanCloud;
 using App.UI;
 using LeanCloud;
@@ -17,8 +18,11 @@ namespace Game
             AVObject.RegisterSubclass<Player>();
             var uiComponent = World.CreateComponent<UIComponent>();
             uiComponent.SyncOpenView<LoginView>();
+        }
 
-          
+        private void OnDestroy()
+        {
+            World.GetComponents<NetComponent>().FirstOrDefault()?.WebClient.Close();
         }
     }
 }

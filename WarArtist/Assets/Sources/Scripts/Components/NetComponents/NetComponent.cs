@@ -2,9 +2,10 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 using LeanCloud;
+using LeanCloud.Play;
 using UnityEngine;
+using Logger = LeanCloud.Play.Logger;
 
 namespace App.Component
 {
@@ -23,12 +24,36 @@ namespace App.Component
 
         #endregion
 
+        #region public properties
+
+        public Client WebClient { get; }
+
+
+        #endregion
+
         #region ctor
 
         public NetComponent()
         {
+            Logger.LogDelegate = (level, log) =>
+            {
+                if (level == LogLevel.Debug)
+                {
+                    Debug.LogFormat("[DEBUG] {0}", log);
+                }
+                else if (level == LogLevel.Warn)
+                {
+                    Debug.LogWarningFormat("[WARN] {0}", log);
+                }
+                else if (level == LogLevel.Error)
+                {
+                    Debug.LogErrorFormat("[ERROR] {0}", log);
+                }
+            };
+
             AVClient.HttpLog(Debug.Log);
             AVClient.Initialize(_appId, _appKey, _tempUrl);
+            WebClient = new Client(_appId,_appKey,Guid.NewGuid().ToString());
         }
 
 
